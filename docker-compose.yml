@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+  sentry:
+    build: sentry-build/
+    env_file:
+      - sentry.env.sh
+    ports:
+      - '127.0.0.1:8085:9000'
+    depends_on:
+      - redis
+      - postgres
+      - memcached
+    links:
+      - redis
+      - postgres
+      - memcached
+    restart: always
+  sentry-cron:
+    build: sentry-build/
+    command: run cron
+    env_file:
+      - sentry.env.sh
+    depends_on:
+      - redis
+      - postgres
+      - memcached
+    links:
+      - redis
+      - postgres
+      - memcached
+    restart: always
+  sentry-worker:
+    build: sentry-build/
+    command: run worker
+    env_file:
+      - sentry.env.sh
+    depends_on:
+      - redis
+      - postgres
+      - memcached
+    links:
+      - redis
+      - postgres
+      - memcached
+    restart: always
+  redis:
+    image: redis
+    restart: always
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=
+    restart: always
+  memcached:
+    image: memcached
+    restart: always
+
+
